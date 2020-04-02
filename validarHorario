@@ -1,0 +1,61 @@
+%%materias
+materia(bd).
+materia(so).
+materia(redes).
+materia(ia).
+materia(sisExp).
+materia(progGrafica).
+materia(seguridad).
+
+%%horarios
+horarios(7,9).
+horarios(8,10).
+horarios(9,11).
+horarios(10,12).
+
+%%diaSemana
+diaSemana(lunes).
+diaSemana(martes).
+
+%%--------------Materias
+horario(Mat1,Mat2):-materia(Mat1)\=materia(Mat2),materia(Mat1),materia(Mat2).
+horario2(Mat1,Mat2,Mat3):-horario(Mat1,Mat2),horario(Mat2,Mat3),horario(Mat1,Mat3).
+
+%%-------------Relación de días y horarios de clases
+%%Función que comprueba un horario sea mayor al horario anterior o consecutivo (translape).
+horasClases(Inicio1,Final1,Inicio2,Final2):- horarios(Inicio1,Final1),
+                                             horarios(Inicio2,Final2),
+                                             Inicio2>=Final1;Inicio1>=Final2.
+
+%%Cuando dos días son iguales (validar traslape).
+horaDia(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2):-Dia1==Dia2,diaSemana(Dia1),diaSemana(Dia2),
+                                        horasClases(Ini1,Fin1,Ini2,Fin2).
+
+%%Cuando dos dias son distintos (No es necesario validar horas).
+horaDia2(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2):-Dia1\=Dia2,diaSemana(Dia1),diaSemana(Dia2),
+                                         horarios(Ini1,Fin1),horarios(Ini2,Fin2).
+
+%%Función para dos horarios , dos días (función de prueba con dos horarios).
+horarioFinal2Materias(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2):-horaDia(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2);
+                                                      horaDia2(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2).
+
+%%Función cuando los primeros dos días son iguales y el tercero distinto.
+horas2DiasIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3):-horaDia(Ini1,Fin1,Ini2,Fin2,Dia1,Dia2),
+								                                                  horaDia2(Ini2,Fin2,Ini3,Fin3,Dia2,Dia3).
+
+%%Función cuando el día 1 y día 3 son iguales y el segundo distinto.
+horasExtremosIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3):-horaDia(Ini1,Fin1,Ini3,Fin3,Dia1,Dia3),
+                                                                     horaDia2(Ini2,Fin2,Ini3,Fin3,Dia2,Dia3).
+
+%%Función cuando los ultimos dos días son iguales y el primero distinto.
+horasUltimosIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3):-horaDia(Ini2,Fin2,Ini3,Fin3,Dia2,Dia3),
+                                                                   horaDia2(Ini1,Fin1,Ini3,Fin3,Dia1,Dia3).
+
+%%Función final para validar todas las posibles combinaciones entre dias y horarios.
+horasDiasFinal(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3):-horas2DiasIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3);
+                                                              horasExtremosIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3);
+							                                                horasUltimosIguales(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3).
+
+%%Comprobar que el horario solicitado sea correcto (función final donde se conjuntan todos los elementos).
+horarioFinal(Mat1,Mat2,Mat3,Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3):-horario2(Mat1,Mat2,Mat3),
+									                                                          horasDiasFinal(Ini1,Fin1,Ini2,Fin2,Ini3,Fin3,Dia1,Dia2,Dia3).
